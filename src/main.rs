@@ -12,7 +12,7 @@ fn print_usage() {
     println!("Work in progress.")
 }
 
-fn open_file(p: &str) -> File {
+fn open_file_or_panic(p: &str) -> File {
     let path = Path::new(p);
     match File::create(&path) {
         Err(e) => panic!("Unable to open file: {}", e),
@@ -20,7 +20,7 @@ fn open_file(p: &str) -> File {
     }
 }
 
-fn write_file(f: &File, b: Bytes) {
+fn write_file_or_panic(f: &File, b: Bytes) {
     match f.write_all(b) {
         Err(e) => panic!("Unable to write to file: {}", e),
         Ok(_) => println!("Generated module files."),
@@ -34,13 +34,13 @@ fn gen_folder_module(name: String, private: bool) {
         format!("{}/mod.rs", name)
     };
 
-    let mut file = open_file(&path_string);
-    write_file(&file, format!("pub mod {}", name).as_bytes())
+    let mut file = open_file_or_panic(&path_string);
+    write_file_or_panic(&file, format!("pub mod {}", name).as_bytes())
 }
 
 fn gen_module(name: String, private: bool) {
     let path_string = format!("{}.rs", name);
-    let mut file = open_file(&path_string);
+    let mut file = open_file_or_panic(&path_string);
 
 }
 
