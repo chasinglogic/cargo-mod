@@ -13,13 +13,46 @@ fn print_usage() {
     println!("Work in progress.")
 }
 
+fn add_mod(root: &PathBuf, modstring: String) {
+    match utils::kind_of_crate(&root) {
+        utils::CrateType::Both => {
+            let librs = fs::OpenOptions::new()
+                .write(true)
+                .append(true)
+                .open(root.clone().push("src").push("lib.rs"));
+            let mainrs = fs::OpenOptions::new()
+                .write(true)
+                .open(root.clone().push("src").push("main.rs"));
+
+            librs.write_all(modstring.as_bytes());
+            mainrs.write_all(modstring.as_bytes())
+        },
+        utils::CrateType::Library => {
+            let librs = fs::OpenOptions::new()
+                .write(true)
+                .append(true)
+                .open(root.clone().push("src").push("lib.rs"));
+
+            librs.write_all(modstring.as_bytes())
+        },
+        utils::CrateType::Binary => {
+            let mainrs = fs::OpenOptions::new()
+                .write(true)
+                .open(root.clone().push("src").push("main.rs"));
+
+            mainrs.write_all(modstring.as_bytes())
+        },
+    }
+}
+
 fn pretty_print_path(root: &PathBuf, target: &PathBuf) -> PathBuf {
     target.strip_prefix(root.parent().unwrap().parent().unwrap()).unwrap().to_path_buf()
 }
 
 fn gen_folder_module(name: String, private: bool) {
-    let root_path = utils::pr::find_project_root(&name);
+    let root_path = utils::project::find_project_root(&name);
     let mut our_path = root_path.clone();
+    our_path.push(&name);
 
     let res = fs::create_dir(our_path.as_path());
     if res.is_err() {
@@ -44,6 +77,8 @@ fn gen_folder_module(name: String, private: bool) {
     }
     println!("Generated mod file: {}", 
              pretty_print_path(&root_path, &our_path).display()); 
+
+    add_mod(&root_path, mod_line) 
 }
 
 // fn gen_module(name: String, private: bool) {
