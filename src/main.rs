@@ -1,75 +1,49 @@
+mod utils;
+
 extern crate getopts;
 
 use getopts::Options;
 
 use std::path::{Path, PathBuf};
 use std::io::prelude::*;
-use std::fs::File;
 use std::fs;
 use std::env;
-
-enum Where {
-    ProjectRoot,
-    SrcDirRoot,
-}
 
 fn print_usage() {
     println!("Work in progress.")
 }
 
-fn where_are_we() -> Where {
-    Where::ProjectRoot
-}
-
-fn create_directory_or_panic(p: &Path) {
-    match fs::create_dir(p) {
-        Err(e) => panic!("Unable to create directory: {}", e),
-        Ok(_) => println!("Created directory: {}", p.to_str().unwrap()),
-    }
-}
-
-fn open_file_or_panic(p: &Path) -> File {
-    match File::create(p) {
-        Err(e) => panic!("Unable to open file: {}", e),
-        Ok(file) => file,
-    }
-}
-
-fn write_file_or_panic(mut f: &File, b: &[u8]) {
-    match f.write_all(b) {
-        Err(e) => panic!("Unable to write to file: {}", e),
-        Ok(_) => println!("Generated module files."),
-    }
-}
-
-fn gen_path(name: String) -> PathBuf {
-    // #crossplatformishard
-    let slash = if cfg!(target_os = "windows") {
-        "\\"
-    } else {
-        "/"
-    };
-
-    // Get the current directory
-    let cur_dir = env::current_dir().unwrap();
-
-    let first_path = match where_are_we() {
-        Where::ProjectRoot => format!("src/{}{}mod.rs", name, slash),
-        Where::SrcDirRoot => format!("{}{}mod.rs", name, slash),
-    }
-
-    let p = Path::new(&first_path);
-        return p.to_path_buf()
-    }
-
-    p.to_path_buf()
+fn pretty_print_path(root: &PathBuf, target: &PathBuf) -> PathBuf {
+    target.strip_prefix(root.parent().unwrap().parent().unwrap()).unwrap().to_path_buf()
 }
 
 fn gen_folder_module(name: String, private: bool) {
-    let path = gen_path(name).as_path();
-    // create_directory_or_panic(&name);
-    // let file = open_file_or_panic(&path_string);
-    // write_file_or_panic(&file, format!("pub mod {}", name).as_bytes());
+    let root_path = utils::pr::find_project_root(&name);
+    let mut our_path = root_path.clone();
+
+    let res = fs::create_dir(our_path.as_path());
+    if res.is_err() {
+        panic!("Unable to create directory: {}", res.err().unwrap());
+    } 
+    println!("Created directory: {}", 
+             pretty_print_path(&root_path, &our_path).display());
+
+    our_path.push("mod.rs");
+    let mut f = fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .append(true)
+            .open(our_path.as_path())
+            .unwrap();
+
+    let mod_line = format!("pub mod {}", &name);
+    let result = f.write_all(mod_line.as_bytes());
+    if result.is_err() {
+        panic!("Unable to write to file: {}", result.err().unwrap());
+    }
+    println!("Generated mod file: {}", 
+             pretty_print_path(&root_path, &our_path).display()); 
 }
 
 // fn gen_module(name: String, private: bool) {
@@ -92,7 +66,7 @@ fn main() {
     let private = matches.opt_present("p");
     let folder = matches.opt_present("f");
     let name = if !matches.free.is_empty() {
-        matches.free[0].clone()
+        matches.free[1].clone()
     } else {
         print_usage();
         return

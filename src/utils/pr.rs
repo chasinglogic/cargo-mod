@@ -1,3 +1,5 @@
+use std::path::{Path, PathBuf};
+use std::env;
 use std::fs;
 
 pub enum Where {
@@ -19,6 +21,8 @@ fn gen_path_recurse(cur_dir: &Path, target: &String) -> String {
     } else {
         "/"
     };
+
+    println!("Current directory: {}", cur_dir.display());
 
     match where_are_we(cur_dir) {
         Where::ProjectRoot => format!("{0}{1}src{1}{2}{1}", cur_dir.to_str().unwrap(), slash, target),
