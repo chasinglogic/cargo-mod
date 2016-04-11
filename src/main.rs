@@ -6,6 +6,7 @@ use getopts::Options;
 
 use std::path::{Path, PathBuf};
 use std::io::prelude::*;
+use std::io;
 use std::fs;
 use std::env;
 
@@ -13,35 +14,52 @@ fn print_usage() {
     println!("Work in progress.")
 }
 
+fn update_librs(root: &PathBuf, modstring: String) {
+    let mut lib_path = root.clone();
+    lib_path.push("src");
+    lib_path.push("lib.rs");
+
+    let mut librs = fs::OpenOptions::new()
+                .write(true)
+                .append(true)
+                .open(lib_path.as_path())
+                .unwrap(); 
+                
+    match librs.write_all(modstring.as_bytes()) {
+        Ok(_) => println!("Updated lib.rs"),
+        Err(e) => println!("Unable to update lib.rs: {}", e)
+    }
+}
+
+fn update_mainrs(root: &PathBuf, modstring: String) {
+    let mut bin_path = root.clone();
+    bin_path.push("src");
+    bin_path.push("main.rs");
+
+    let mut mainrs = fs::OpenOptions::new()
+                .write(true)
+                .read(true)
+                .open(bin_path.as_path())
+                .unwrap();
+
+    let mut current_contents = String::new();
+    try!(mainrs.read_to_string(&mut current_contents));
+
+    current_contents.push_str(modstring.as_str());
+    match mainrs.write_all(current_contents.as_bytes()) {
+        Ok(_) => println!("Updated main.rs"),
+        Err(e) => println!("Unable to update main.rs: {}", e)
+    }
+}
+
 fn add_mod(root: &PathBuf, modstring: String) {
-    match utils::kind_of_crate(&root) {
-        utils::CrateType::Both => {
-            let librs = fs::OpenOptions::new()
-                .write(true)
-                .append(true)
-                .open(root.clone().push("src").push("lib.rs"));
-            let mainrs = fs::OpenOptions::new()
-                .write(true)
-                .open(root.clone().push("src").push("main.rs"));
-
-            librs.write_all(modstring.as_bytes());
-            mainrs.write_all(modstring.as_bytes())
+    match utils::project::kind_of_crate(&root) {
+        utils::project::CrateType::Both => {
+            update_librs(root, modstring.clone());
+            update_mainrs(root, modstring)
         },
-        utils::CrateType::Library => {
-            let librs = fs::OpenOptions::new()
-                .write(true)
-                .append(true)
-                .open(root.clone().push("src").push("lib.rs"));
-
-            librs.write_all(modstring.as_bytes())
-        },
-        utils::CrateType::Binary => {
-            let mainrs = fs::OpenOptions::new()
-                .write(true)
-                .open(root.clone().push("src").push("main.rs"));
-
-            mainrs.write_all(modstring.as_bytes())
-        },
+        utils::project::CrateType::Library => update_librs(root, modstring),
+        utils::project::CrateType::Binary => update_mainrs(root, modstring),
     }
 }
 
@@ -50,8 +68,9 @@ fn pretty_print_path(root: &PathBuf, target: &PathBuf) -> PathBuf {
 }
 
 fn gen_folder_module(name: String, private: bool) {
-    let root_path = utils::project::find_project_root(&name);
+    let root_path = utils::project::find_project_root();
     let mut our_path = root_path.clone();
+    our_path.push("src");
     our_path.push(&name);
 
     let res = fs::create_dir(our_path.as_path());
@@ -70,7 +89,7 @@ fn gen_folder_module(name: String, private: bool) {
             .open(our_path.as_path())
             .unwrap();
 
-    let mod_line = format!("pub mod {}", &name);
+    let mod_line = format!("pub mod {};\n", &name);
     let result = f.write_all(mod_line.as_bytes());
     if result.is_err() {
         panic!("Unable to write to file: {}", result.err().unwrap());
