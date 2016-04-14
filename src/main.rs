@@ -4,6 +4,8 @@ extern crate getopts;
 
 use getopts::Options;
 
+use utils::*;
+
 use std::path::{Path, PathBuf};
 use std::io::prelude::*;
 use std::io;
@@ -14,75 +16,19 @@ fn print_usage() {
     println!("Work in progress.")
 }
 
-fn update_librs(root: &PathBuf, modstring: String) {
-    let mut lib_path = root.clone();
-    lib_path.push("src");
-    lib_path.push("lib.rs");
-
-    let mut librs = fs::OpenOptions::new()
-                .write(true)
-                .append(true)
-                .open(lib_path.as_path())
-                .unwrap(); 
-                
-    match librs.write_all(modstring.as_bytes()) {
-        Ok(_) => println!("Updated lib.rs"),
-        Err(e) => println!("Unable to update lib.rs: {}", e)
-    }
-}
-
-fn update_mainrs(root: &PathBuf, modstring: String) {
-    let mut bin_path = root.clone();
-    bin_path.push("src");
-    bin_path.push("main.rs");
-
-    let mut mainrs = fs::OpenOptions::new()
-                .write(true)
-                .read(true)
-                .open(bin_path.as_path())
-                .unwrap();
-
-    let mut current_contents = String::new();
-    mainrs.read_to_string(&mut current_contents);
-
-    modstring.push_str(current_contents.as_str());
-    match mainrs.write_all(current_contents.as_bytes()) {
-        Ok(_) => println!("Updated main.rs"),
-        Err(e) => println!("Unable to update main.rs: {}", e)
-    }
-}
-
-fn add_mod(root: &PathBuf, modstring: String) {
-    match utils::project::kind_of_crate(&root) {
-        utils::project::CrateType::Both => {
-            update_librs(root, modstring.clone());
-            update_mainrs(root, modstring)
-        },
-        utils::project::CrateType::Library => update_librs(root, modstring),
-        utils::project::CrateType::Binary => update_mainrs(root, modstring),
-    }
-}
-
-fn pretty_print_path(root: &PathBuf, target: &PathBuf) -> PathBuf {
-    target.strip_prefix(root
-                        .parent().unwrap()
-                        .parent().unwrap()
-                        .parent().unwrap()
-                        ).unwrap().to_path_buf()
-}
-
 fn gen_folder_module(name: String, private: bool) {
-    let root_path = utils::project::find_project_root();
+    let root_path = project::find_project_root(); // PathBuf
     let mut our_path = root_path.clone();
     our_path.push("src");
     our_path.push(&name);
 
     let res = fs::create_dir(our_path.as_path());
     if res.is_err() {
-        panic!("Unable to create directory: {}", res.err().unwrap());
+        println!("Unable to create directory: {}", res.err().unwrap());
+        std::process::exit(1);
     } 
     println!("Created directory: {}", 
-             pretty_print_path(&root_path, &our_path).display());
+             path::pretty_path(&root_path, &our_path).display());
 
     our_path.push("mod.rs");
     let mut f = fs::OpenOptions::new()
@@ -93,21 +39,36 @@ fn gen_folder_module(name: String, private: bool) {
             .open(our_path.as_path())
             .unwrap();
 
-    let mod_line = format!("\npub mod {};\n", &name);
-    let result = f.write_all(mod_line.as_bytes());
+    let result = f.write_all("".as_bytes());
     if result.is_err() {
         panic!("Unable to write to file: {}", result.err().unwrap());
     }
     println!("Generated mod file: {}", 
-             pretty_print_path(&root_path, &our_path).display()); 
+             path::pretty_path(&root_path, &our_path).display()); 
 
-    add_mod(&root_path, mod_line) 
+    module::add_mod(&root_path, module::generate_modstring(name, private)) 
 }
 
-// fn gen_module(name: String, private: bool) {
-//     let path_string = format!("{}.rs", name);
-//     let mut file = open_file_or_panic(&path_string);
-// }
+fn gen_module(name: String, private: bool) {
+    let root_path = project::find_project_root();
+    let our_path = root.clone();
+    our_path.push("src");
+
+    // Then we have a folder module which we want to add to.
+    // if name.contains("/") {
+    //     let iter = name.split("/");
+    // }
+    
+    let mut namers = name.clone();
+    namers.push(".rs");
+    our_path.push(namers);
+
+    let mut f = fs::File::create(our_path.as_path());
+    f.write_all("");
+    println!("Created empty file: ", path::pretty_path(&root_path, &our_path));
+
+    module::add_mod(&root_path, module::generate_modstring(name, private))
+}
 
 fn main() {
     let mut opts = Options::new();
@@ -130,10 +91,10 @@ fn main() {
         return
     };
 
-    // if folder {
+    if folder {
         gen_folder_module(name, private);
-        // return 
-    // }
+        return 
+    }
 
-    // gen_module(name, private)
+    gen_module(name, private)
 }
