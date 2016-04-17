@@ -1,5 +1,5 @@
 [package]
-name = "cargo-gen"
+name = "cargo-mod"
 description = "A cargo sub command for generating modules in your project. Reducing time spent writing boilerplate."
 version = "0.1.0"
 authors = ["Mathew Robinson <mathew.robinson3114@gmail.com>"]
