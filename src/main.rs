@@ -22,11 +22,9 @@ fn gen_folder_module(name: String, private: bool) {
     our_path.push("src");
     our_path.push(&name);
 
-    let res = fs::create_dir(our_path.as_path());
-    if res.is_err() {
-        println!("Unable to create directory: {}", res.err().unwrap());
-        std::process::exit(1);
-    } 
+    let res = fs::create_dir(our_path.as_path())
+        .expect("Unable to create directory");
+
     println!("Created directory: {}", 
              path::pretty_path(&root_path, &our_path).display());
 
@@ -39,10 +37,9 @@ fn gen_folder_module(name: String, private: bool) {
             .open(our_path.as_path())
             .unwrap();
 
-    let result = f.write_all("".as_bytes());
-    if result.is_err() {
-        panic!("Unable to write to file: {}", result.err().unwrap());
-    }
+    let result = f.write_all("".as_bytes())
+        .expect("Unable to create mod file");
+
     println!("Generated mod file: {}", 
              path::pretty_path(&root_path, &our_path).display()); 
 
@@ -76,14 +73,18 @@ fn main() {
 
     opts.optflag("p", "private", "Make the generated module private.");
     opts.optflag("f", "folder", "Generate a folder module instead of a file.");
+    opts.optflag("h", "help", "Show help message");
 
     let matches = match opts.parse(&args) {
         Ok(m) => m,
         Err(f) => panic!(f.to_string()),
     };
 
+    if matches.opt_present("h") {
+        print_usage()
+    }
+
     let private = matches.opt_present("p");
-    let folder = matches.opt_present("f");
     let name = if !matches.free.is_empty() {
         matches.free[1].clone()
     } else {
@@ -91,7 +92,7 @@ fn main() {
         return
     };
 
-    if folder {
+    if matches.opt_present("f") {
         gen_folder_module(name, private);
         return 
     }
