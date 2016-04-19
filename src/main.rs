@@ -30,12 +30,12 @@ fn gen_folder_module(name: String, private: bool) {
 
     our_path.push("mod.rs");
     let mut f = fs::OpenOptions::new()
-            .read(true)
-            .write(true)
-            .create(true)
-            .append(true)
-            .open(our_path.as_path())
-            .unwrap();
+        .read(true)
+        .write(true)
+        .create(true)
+        .append(true)
+        .open(our_path.as_path())
+        .expect("Unable to create mod.rs");
 
     let result = f.write_all("".as_bytes())
         .expect("Unable to create mod file");
@@ -57,12 +57,16 @@ fn gen_module(name: String, private: bool) {
     // }
     
     let mut namers = name.clone();
-    namers.push(".rs");
+    let dotrs: String = ".rs".to_string();
+    namers.push(dotrs);
     our_path.push(namers);
 
-    let mut f = fs::File::create(our_path.as_path());
-    f.write_all("");
-    println!("Created empty file: ", path::pretty_path(&root_path, &our_path));
+    let mut f = fs::File::create(our_path.as_path())
+        .expect("Unable to create mod file.");
+
+    f.write_all("".as_bytes());
+    println!("Created empty file: {}",
+             pretty_path(&root_path, &our_path).display());
 
     module::add_mod(&root_path, module::generate_modstring(name, private))
 }
