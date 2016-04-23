@@ -34,6 +34,7 @@ pub fn kind_of_crate(root: &PathBuf) -> CrateType {
 }
 
 pub fn find_project_root() -> PathBuf {
+    // Leaving this unwrap, we want to fail if for some reason we can't find current directory
     let generated_path = gen_path_recurse(env::current_dir().unwrap().as_path());
     println!("Generated: {}", generated_path.display());
     generated_path
