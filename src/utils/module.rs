@@ -1,27 +1,87 @@
-pub fn generate_modstring(name: String, private: bool) -> String {
+use std::path::PathBuf;
+use std::fs;
+use std::io::{Read, Write};
+use super::project;
+
+pub fn gen_module(mut name: String, private: bool) {
+    let root_path = project::find_project_root();
+    let mut our_path = root_path.clone();
+    our_path.push("src");
+
+    if !name.ends_with("/") {
+        name.push_str(".rs");
+    }
+
+    for dir in name.split("/") {
+        if !dir.ends_with(".rs") {
+            our_path.push(dir);
+            gen_folder_module(root_path, &mut our_path.clone());
+        } else {
+            our_path.push(name);
+            gen_file_module(root_path, our_path);
+        }
+    }
+
+    add_mod(&root_path, &mut our_path, generate_modstring(name, private))
+}
+
+fn gen_file_module(root_path: PathBuf, target_path: PathBuf) {
+    let mut f = fs::File::create(target_path.as_path())
+        .expect("Unable to create mod file.");
+
+    f.write_all("".as_bytes())
+        .expect("Unable to write to mod file.");
+
+    println!("Created empty file: {}",
+             super::pretty_path(&root_path, &target_path).display());
+
+}
+
+fn gen_folder_module(root_path: PathBuf, mut target_path: PathBuf) {
+    fs::create_dir(target_path.as_path())
+        .expect("Unable to create directory");
+
+    println!("Created directory: {}", 
+             super::pretty_path(&root_path, &target_path).display());
+
+    target_path.push("mod.rs");
+    let mut f = fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .append(true)
+        .open(target_path.as_path())
+        .expect("Unable to create mod.rs");
+
+    f.write_all("".as_bytes())
+        .expect("Unable to create mod file");
+
+    println!("Generated mod file: {}", 
+             super::pretty_path(&root_path, &target_path).display())
+}
+
+fn generate_modstring(name: String, private: bool) -> String {
     if private {
         return format!("\nmod {};\n", &name);
     }
 
-    format!("\npub mod {};\n", &name);
+    format!("\npub mod {};\n", &name)
 }
 
-fn update_mainrs(root: &PathBuf, modstring: &mut String) {
-    let mut bin_path = root.clone();
-    bin_path.push("src");
-    bin_path.push("main.rs");
-
-    let mut mainrs = fs::File::open(bin_path.as_path()).unwrap();
-    let mut current_contents = String::new();
-    mainrs.read_to_string(&mut current_contents);
-
-    modstring.push_str(current_contents.as_str());
-
-    let mut new_file = fs::File::create(bin_path.as_path()).unwrap();
-    match new_file.write_all(modstring.as_bytes()) {
-        Ok(_) => println!("Updated main.rs"),
-        Err(e) => println!("Unable to update main.rs: {}", e)
+fn add_mod(root: &PathBuf, &mut target_path: PathBuf, name: String, private: bool) {
+    let final_modstring = update_modrs(target_path, name, private);
+    match project::kind_of_crate(&root) {
+        project::CrateType::Both => {
+            update_mainrs(root, &mut final_modstring.clone());
+            update_librs(root, final_modstring)
+        },
+        project::CrateType::Library => update_librs(root, final_modstring),
+        project::CrateType::Binary => update_mainrs(root, &mut final_modstring.clone()),
     }
+}
+
+fn update_modrs(target: PathBuf, name, private) -> String {
+    
 }
 
 fn update_librs(root: &PathBuf, modstring: String) {
@@ -30,34 +90,32 @@ fn update_librs(root: &PathBuf, modstring: String) {
     lib_path.push("lib.rs");
 
     let mut librs = fs::OpenOptions::new()
-                .write(true)
-                .append(true)
-                .open(lib_path.as_path())
-                .unwrap();
+        .write(true)
+        .append(true)
+        .open(lib_path.as_path())
+        .expect("Unable to open lib.rs");
 
-    match librs.write_all(modstring.as_bytes()) {
-        Ok(_) => println!("Updated lib.rs"),
-        Err(e) => println!("Unable to update lib.rs: {}", e)
-    }
+    librs.write_all(modstring.as_bytes())
+        .expect("Unable to update lib.rs")
 }
 
-pub fn add_mod(root: &PathBuf, modstring: String) {
-    match project::kind_of_crate(&root) {
-        project::CrateType::Both => {
-            update_mainrs(root, &mut modstring.clone());
-            update_librs(root, modstring)
-        },
-        project::CrateType::Library => update_librs(root, modstring),
-        project::CrateType::Binary => update_mainrs(root, &mut modstring.clone()),
-    }
+fn update_mainrs(root: &PathBuf, modstring: &mut String) {
+    let mut bin_path = root.clone();
+    bin_path.push("src");
+    bin_path.push("main.rs");
+
+    let mut mainrs = fs::File::open(bin_path.as_path())
+        .expect("Cannot open src/main.rs");
+    let mut current_contents = String::new();
+    mainrs.read_to_string(&mut current_contents)
+        .expect("Cannot read from main.rs");
+
+    let mut publess = modstring.trim_left_matches("pub").to_string();
+    publess.push_str(current_contents.as_str());
+
+    let mut new_file = fs::File::create(bin_path.as_path())
+        .expect("Cannot update src/main.rs");
+    new_file.write_all(publess.as_bytes())
+        .expect("Unable to write to src/main.rs")
 }
 
-pub fn folder_module_exists(src_path: &PathBuf, name: String) -> bool {
-    let mut check = src_path.clone();
-    check.push(name);
-
-    match fs::metadata(check) {
-        Ok(_) => true,
-        Err(_) => false,
-    } 
-}
