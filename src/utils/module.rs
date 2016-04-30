@@ -3,23 +3,30 @@ use std::fs;
 use std::io::{Read, Write};
 use super::project;
 
+fn is_file(s: String) -> bool {
+    if !s.ends_with("/") || s.ends_with(".rs") {
+        return true
+    }
+
+    false
+}
+
 pub fn gen_module(mut name: String, private: bool) {
     let root_path = project::find_project_root();
     let mut our_path = root_path.clone();
     our_path.push("src");
 
-    if !name.ends_with("/") {
-        name.push_str(".rs");
-    }
+    if !is_file(name) { name.push_str(".rs") }
 
     for dir in name.split("/") {
-        if !dir.ends_with(".rs") {
-            our_path.push(dir);
-            gen_folder_module(root_path, &mut our_path.clone());
-        } else {
+        if is_file(dir) {
             our_path.push(name);
             gen_file_module(root_path, our_path);
+            break;
         }
+
+        our_path.push(dir);
+        gen_folder_module(root_path, &mut our_path.clone());
     }
 
     add_mod(&root_path, &mut our_path, generate_modstring(name, private))
@@ -53,8 +60,10 @@ fn gen_folder_module(root_path: PathBuf, mut target_path: PathBuf) {
         .open(target_path.as_path())
         .expect("Unable to create mod.rs");
 
+    // TODO: Is this necessary? Don't know if OpenOptions will create the file without being
+    // written to.
     f.write_all("".as_bytes())
-        .expect("Unable to create mod file");
+        .expect("Unable to create mod.rs");
 
     println!("Generated mod file: {}", 
              super::pretty_path(&root_path, &target_path).display())
