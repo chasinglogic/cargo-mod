@@ -78,7 +78,6 @@ fn generate_modstring(name: String, private: bool) -> String {
 }
 
 fn add_mod(root: &PathBuf, &mut target_path: PathBuf, name: String, private: bool) {
-    let final_modstring = update_modrs(target_path, name, private);
     match project::kind_of_crate(&root) {
         project::CrateType::Both => {
             update_mainrs(root, &mut final_modstring.clone());
@@ -89,8 +88,16 @@ fn add_mod(root: &PathBuf, &mut target_path: PathBuf, name: String, private: boo
     }
 }
 
-fn update_modrs(target: PathBuf, name, private) -> String {
-    
+fn update_modrs(root: PathBuf, target: PathBuf, name, private) -> String {
+     match project::what_to_update(&root) {
+        project::ModFile::Both => {
+            update_mainrs(root, &mut final_modstring.clone());
+            update_librs(root, final_modstring)
+        },
+        project::ModFile::Library => update_librs(root, final_modstring),
+        project::ModFile::Binary => update_mainrs(root, &mut final_modstring.clone()),
+        project::ModFile::Mods => update_modrs(target, final_modstring),
+    }
 }
 
 fn update_librs(root: &PathBuf, modstring: String) {
