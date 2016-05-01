@@ -60,7 +60,7 @@ fn gen_folder_module(root_path: PathBuf, mut target_path: PathBuf) {
         .open(target_path.as_path())
         .expect("Unable to create mod.rs");
 
-    // TODO: Is this necessary? Don't know if OpenOptions will create the file without being
+    // TODO: Is this necessary? I don't know if OpenOptions will create the file without being
     // written to.
     f.write_all("".as_bytes())
         .expect("Unable to create mod.rs");
