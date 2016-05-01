@@ -7,30 +7,34 @@ pub enum Where {
     Other,
 }
 
-pub enum CrateType {
+pub enum ModFile {
     Library,
     Binary,
+    Mod,
     Both,
 }
 
-pub fn kind_of_crate(root: &PathBuf) -> CrateType {
-    let mut lib_path = root.clone();
-    lib_path.push("src");
+pub fn kind_of_crate(target_path: &PathBuf) -> CrateType {
+    let mut lib_path = target_path.clone();
     lib_path.push("lib.rs");
-    let mut bin_path = root.clone();
-    bin_path.push("src");
+
+    let mut bin_path = target_path.clone();
     bin_path.push("main.rs");
 
     if fs::metadata(lib_path.as_path()).is_ok() && 
        fs::metadata(bin_path.as_path()).is_ok() {
-        return CrateType::Both
+        return ModFile::Both
     }
 
     if fs::metadata(lib_path.as_path()).is_ok() {
-        return CrateType::Library
+        return ModFile::Library
     }
 
-    CrateType::Binary
+    if fs::metadata(bin_path.as_path()).is_ok() {
+        return ModFile::Binary
+    }
+
+    ModFile::Mod
 }
 
 pub fn find_project_root() -> PathBuf {
