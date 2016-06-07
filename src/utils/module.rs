@@ -26,9 +26,8 @@ pub fn gen_module(mut name: String, private: bool) {
 
         working_dir = working_dir.push(dir).expect("Unexpected Error: Unable to push to working_dir");
         gen_folder_module(working_dir.clone());
+        update_modrs(working_dir, generate_modstring(dir, private))
     }
-
-    add_mod(&root_path, &mut our_path, generate_modstring(name, private))
 }
 
 fn gen_file_module(target_path: PathBuf) {
@@ -77,41 +76,32 @@ fn generate_modstring(name: String, private: bool) -> String {
     format!("\npub mod {};\n", &name)
 }
 
-fn add_mod(root: &PathBuf, &mut target_path: PathBuf, name: String, private: bool) {
-    match project::kind_of_crate(&target_path) {
-        project::ModFile::Both => {
-            update_mainrs(root, &mut final_modstring.clone());
-            update_librs(root, final_modstring)
-        },
-        project::ModFile::Library => update_librs(root, final_modstring),
-        project::ModFile::Binary => update_mainrs(root, &mut final_modstring.clone()),
-        project::ModFile::Mod => updated_modrs(target_path, name, private),
+// This function is definitely a feelsbadman.jpg
+// There has got to be a better way to truncate the already open file...
+// TODO: Investigate if this can be optimized to remove unnecessary disk IO
+fn update_modrs(target: PathBuf, modstring: String) -> String {
+    let modrs = what_to_update(&target);
+
+    // Add this block so we destruct f when we are done with it
+    {
+        let mut f = fs::File::open(modrs.as_path())
+            .expect(format!("Unable to open file: {}", modrs.display()));
+
+        // Read all the contents of our target file
+        let mut current_contents = String::new();
+        f.read_to_string(&mut current_contents)
+            .expect(format!("Unable to read from file: {}", modrs.display()));
+
+        // Add our mod statement to top of the file
+        modstring.push_str(current_contents.as_str());
     }
+
+    let mut new_file = fs::File::create(modrs.as_path())
+        .expect(format!("Cannot update file: {}", modrs.display()));
+    new_file.write_all(modstring.as_bytes())
+        .expect(format!("Cannot write to file: {}", modrs.display()));
 }
 
-fn update_modrs(target: PathBuf, name: String, private: bool) -> String {
-    unimplemented!()
-}
-
-fn update_librs(root: &PathBuf, modstring: String) {
-    let mut lib_path = root.clone();
-    lib_path.push("src");
-    lib_path.push("lib.rs");
-
-    let mut librs = fs::OpenOptions::new()
-        .write(true)
-        .append(true)
-        .open(lib_path.as_path())
-        .expect("Unable to open lib.rs");
-
-    librs.write_all(modstring.as_bytes())
-        .expect("Unable to update lib.rs")
-}
-
-fn update_mainrs(root: &PathBuf, modstring: &mut String) {
-    let mut bin_path = root.clone();
-    bin_path.push("src");
-    bin_path.push("main.rs");
 
     let mut mainrs = fs::File::open(bin_path.as_path())
         .expect("Cannot open src/main.rs");
