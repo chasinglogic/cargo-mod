@@ -19,13 +19,13 @@ pub fn gen_module(mut name: String, private: bool) {
 
     for dir in name.split("/") {
         if is_file(&dir) {
-            our_path.push(name);
-            gen_file_module(root_path, our_path);
+            working_dir.push(name);
+            gen_file_module(working_dir.clone());
             break;
         }
 
-        our_path.push(dir);
-        gen_folder_module(root_path, &mut our_path.clone());
+        working_dir = working_dir.push(dir).expect("Unexpected Error: Unable to push to working_dir");
+        gen_folder_module(working_dir.clone());
     }
 
     add_mod(&root_path, &mut our_path, generate_modstring(name, private))
