@@ -12,14 +12,13 @@ fn is_file(s: String) -> bool {
 }
 
 pub fn gen_module(mut name: String, private: bool) {
-    let root_path = project::find_project_root();
-    let mut our_path = root_path.clone();
-    our_path.push("src");
+    let mut working_dir = env::current_dir();
 
-    if !is_file(name) { name.push_str(".rs") }
+    // This makes sure that the name ends with .rs if not a directory
+    if is_file(&name) { name.push_str(".rs") }
 
     for dir in name.split("/") {
-        if is_file(dir) {
+        if is_file(&dir) {
             our_path.push(name);
             gen_file_module(root_path, our_path);
             break;
