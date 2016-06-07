@@ -3,8 +3,6 @@ use std::fs;
 use std::io::{Read, Write};
 use std::env;
 
-use super::project;
-
 fn is_file(s: &str) -> bool {
     if !s.ends_with("/") || s.ends_with(".rs") {
         return true
