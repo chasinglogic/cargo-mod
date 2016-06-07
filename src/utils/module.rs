@@ -43,6 +43,7 @@ fn gen_file_module(target_path: PathBuf) {
     println!("Created empty file: {}",
              super::pretty_path(&root_path, &target_path).display());
 
+    
 }
 
 fn gen_folder_module(root_path: PathBuf, mut target_path: PathBuf) {
