@@ -1,9 +1,10 @@
+extern crate getopts;
+
 mod utils;
 
-extern crate getopts;
 use getopts::Options;
-
 use utils::*;
+use std::env;
 
 fn print_usage() {
     println!("Work in progress.")
