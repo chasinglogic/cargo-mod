@@ -31,7 +31,7 @@ pub fn gen_module(mut name: String, private: bool) {
     add_mod(&root_path, &mut our_path, generate_modstring(name, private))
 }
 
-fn gen_file_module(root_path: PathBuf, target_path: PathBuf) {
+fn gen_file_module(target_path: PathBuf) {
     let mut f = fs::File::create(target_path.as_path())
         .expect("Unable to create mod file.");
 
