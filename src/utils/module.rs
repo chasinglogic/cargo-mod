@@ -37,10 +37,7 @@ fn gen_file_module(target_path: PathBuf) {
     f.write_all("".as_bytes())
         .expect("Unable to write to mod file.");
 
-    println!("Created empty file: {}",
-             super::pretty_path(&root_path, &target_path).display());
-
-    
+    println!("Created empty file: {}", target_path.display());
 }
 
 fn gen_folder_module(root_path: PathBuf, mut target_path: PathBuf) {
@@ -48,7 +45,7 @@ fn gen_folder_module(root_path: PathBuf, mut target_path: PathBuf) {
         .expect("Unable to create directory");
 
     println!("Created directory: {}", 
-             super::pretty_path(&root_path, &target_path).display());
+             target_path.display());
 
     target_path.push("mod.rs");
     let mut f = fs::OpenOptions::new()
@@ -65,7 +62,7 @@ fn gen_folder_module(root_path: PathBuf, mut target_path: PathBuf) {
         .expect("Unable to create mod.rs");
 
     println!("Generated mod file: {}", 
-             super::pretty_path(&root_path, &target_path).display())
+             target_path.display())
 }
 
 fn generate_modstring(name: String, private: bool) -> String {
@@ -102,19 +99,22 @@ fn update_modrs(target: PathBuf, modstring: String) -> String {
         .expect(format!("Cannot write to file: {}", modrs.display()));
 }
 
+fn what_to_update(target_path: &PathBuf) -> PathBuf {
+    let targets = ["mod.rs", "lib.rs", "main.rs"];
+    let mut test_path = target_path.clone();
 
-    let mut mainrs = fs::File::open(bin_path.as_path())
-        .expect("Cannot open src/main.rs");
-    let mut current_contents = String::new();
-    mainrs.read_to_string(&mut current_contents)
-        .expect("Cannot read from main.rs");
+    for target in targets.iter() {
+        test_path.push(target);
 
-    let mut publess = modstring.trim_left_matches("pub").to_string();
-    publess.push_str(current_contents.as_str());
+        if test_path.exists() {
+            break
+        }
 
-    let mut new_file = fs::File::create(bin_path.as_path())
-        .expect("Cannot update src/main.rs");
-    new_file.write_all(publess.as_bytes())
-        .expect("Unable to write to src/main.rs")
+        test_path = test_path
+            .parent()
+            .expect("Unexpected error: Failed to unwrap test_path parent.")
+            .to_path_buf()
+    }
+
+    test_path
 }
-
