@@ -2,7 +2,6 @@ use std::path::PathBuf;
 use std::fs;
 use std::io::{Read, Write};
 use std::io;
-use std::env;
 
 fn is_file(s: &str) -> bool {
     if s.ends_with(".rs") {
@@ -25,6 +24,7 @@ pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
         working_dir.pop();
     }
 
+    // TODO: Some DRY Cleanup here
     for dir in name.split("/") {
         if is_file(&dir) {
             working_dir.push(dir);
