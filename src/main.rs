@@ -1,9 +1,8 @@
+mod module;
+
 extern crate getopts;
 
-mod utils;
-
 use getopts::Options;
-use utils::*;
 use std::env;
 
 fn print_usage() {
@@ -30,8 +29,7 @@ fn main() {
     let name = if !matches.free.is_empty() {
         matches.free[1].clone()
     } else {
-        print_usage();
-        return
+        return print_usage();
     };
 
     module::gen_module(name, private)
