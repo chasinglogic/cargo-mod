@@ -1,9 +1,10 @@
+pub mod utils;
 mod module;
 
 extern crate getopts;
 
 use getopts::Options;
-use std::env;
+use std::{env, process};
 
 fn print_usage() {
     println!("Work in progress.")
@@ -22,15 +23,22 @@ fn main() {
     };
 
     if matches.opt_present("h") {
-        return print_usage()
+        print_usage();
+        process::exit(0);
     }
 
     let private = matches.opt_present("p");
     let name = if !matches.free.is_empty() {
         matches.free[1].clone()
     } else {
-        return print_usage();
+        print_usage();
+        process::exit(1);
     };
+
+    if !utils::are_in_project() {
+        println!("Please run this command inside a Cargo project. Exiting.");
+        process::exit(1);
+    }
 
     let mut current_dir = env::current_dir()
         .expect("Unexpected Error: Cannot get current working directory.");
