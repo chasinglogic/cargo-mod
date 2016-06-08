@@ -32,5 +32,7 @@ fn main() {
         return print_usage();
     };
 
-    module::gen_module(name, private)
+    let mut current_dir = env::current_dir()
+        .expect("Unexpected Error: Cannot get current working directory.");
+    module::gen_module(name, private, &mut current_dir)
 }
