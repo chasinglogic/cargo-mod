@@ -9,19 +9,15 @@ fn is_file(s: &str) -> bool {
         return true
     }
 
-
     false
 }
 
-pub fn gen_module(mut name: String, private: bool) {
-    let mut working_dir = env::current_dir().expect("Unexpected Error: Cannot get current working directory.");
-
+pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
     // This makes sure that the name ends with .rs if not a directory
     if !name.ends_with("/") { name.push_str(".rs") }
 
     // Check if we are at project root
     working_dir.push("Cargo.toml");
-
     if working_dir.exists() {
         working_dir.pop();
         working_dir.push("src");
