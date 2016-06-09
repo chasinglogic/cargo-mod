@@ -1,6 +1,6 @@
 language: rust
 before_script:
-  ./setup_tests.sh
+  - ./setup_tests.sh
 script:
-  cargo build --release
-  cargo test
+  - cargo build --release
+  - cargo test
