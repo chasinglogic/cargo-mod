@@ -10,6 +10,7 @@ pub fn are_in_project() -> bool {
             return true
         }
 
+        cwd.pop();
         if !cwd.pop() {
             return false
         }
