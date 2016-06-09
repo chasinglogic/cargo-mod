@@ -58,12 +58,12 @@ pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
 
 fn gen_file_module(target_path: PathBuf) -> Result<fs::File, io::Error> {
     println!("Creating empty file: {}", target_path.display());
-    fs::File::create(target_path.as_path())
+    fs::File::create(target_path)
 }
 
 fn gen_folder_module(mut target_path: PathBuf) -> Result<(), io::Error> {
     println!("Creating directory: {}", target_path.display());
-    try!(fs::create_dir(target_path.as_path()));
+    try!(fs::create_dir(&target_path));
 
     target_path.push("mod.rs");
     let mut f = try!(fs::OpenOptions::new()
@@ -71,7 +71,7 @@ fn gen_folder_module(mut target_path: PathBuf) -> Result<(), io::Error> {
                      .write(true)
                      .create(true)
                      .append(true)
-                     .open(target_path.as_path()));
+                     .open(target_path));
 
     // TODO: Is this necessary? I don't know if OpenOptions will create the file without being
     // written to.
@@ -97,17 +97,17 @@ fn update_modrs(target: &mut PathBuf, mut modstring: String) -> Result<(), io::E
 
     // Add this block so we destruct f when we are done with it
     {
-        let mut f = try!(fs::File::open(target.as_path()));
+        let mut f = try!(fs::File::open(&target));
 
         // Read all the contents of our target file
         let mut current_contents = String::new();
         try!(f.read_to_string(&mut current_contents));
 
         // Add our mod statement to top of the file
-        modstring.push_str(current_contents.as_str());
+        modstring.push_str(&current_contents);
     }
 
-    let mut new_file = try!(fs::File::create(target.as_path()));
+    let mut new_file = try!(fs::File::create(target));
     try!(new_file.write_all(modstring.as_bytes()));
     Ok(())
 }
