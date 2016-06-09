@@ -129,3 +129,23 @@ fn generate_private_module() {
         }
     }
 }
+
+#[test]
+fn generate_module_inside_subdir() {
+    // Generate the first folder
+    let cmd = Command::new(get_executable_path())
+        .arg("subfolder/")
+        .current_dir(path_concat!(env::current_dir().unwrap(), "tests", "generator_test"))
+        .output()
+        .unwrap_or_else(|e| { panic!("failed to execute process: {}", e) });
+
+    verify_generation(&mut "subfolder/".to_string());
+
+    let cmd = Command::new(get_executable_path())
+        .arg("anotha/one")
+        .current_dir(path_concat!(env::current_dir().unwrap(), "tests", "generator_test", "src", "subfolder"))
+        .output()
+        .unwrap_or_else(|e| { panic!("failed to execute process: {}", e) });
+
+    verify_generation(&mut "subfolder/anotha/one".to_string())
+}
