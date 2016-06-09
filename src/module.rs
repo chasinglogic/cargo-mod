@@ -4,11 +4,7 @@ use std::io::{Read, Write};
 use std::io;
 
 fn is_file(s: &str) -> bool {
-    if s.ends_with(".rs") {
-        return true
-    }
-
-    false
+    s.ends_with(".rs")
 }
 
 pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
