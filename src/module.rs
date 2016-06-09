@@ -13,7 +13,7 @@ fn is_file(s: &str) -> bool {
 
 pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
     // This makes sure that the name ends with .rs if not a directory
-    if !name.ends_with("/") { name.push_str(".rs") }
+    if !name.ends_with('/') { name.push_str(".rs") }
 
     // Check if we are at project root
     working_dir.push("Cargo.toml");
@@ -25,8 +25,8 @@ pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
     }
 
     // TODO: Some DRY Cleanup here
-    for dir in name.split("/") {
-        if is_file(&dir) {
+    for dir in name.split('/') {
+        if is_file(dir) {
             working_dir.push(dir);
             if let Some(err) = gen_file_module(working_dir.clone()).err() {
                 if err.kind() == io::ErrorKind::AlreadyExists {
@@ -118,7 +118,7 @@ fn update_modrs(target: &mut PathBuf, mut modstring: String) -> Result<(), io::E
 
 fn what_to_update(target_path: &mut PathBuf)  {
     let targets = ["mod.rs", "lib.rs", "main.rs"];
-    for target in targets.iter() {
+    for target in &targets {
         target_path.push(target);
 
         if target_path.exists() {
