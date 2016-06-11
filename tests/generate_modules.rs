@@ -53,7 +53,6 @@ fn verify_generation(s: &mut String) {
         p.push(d);
         assert!(p.exists(), format!("Directory/File does not exist. {}", d));
 
-        println!("Testing: {} {}", p.display(), p.exists());
         if !d.ends_with(".rs") {
             p.push("mod.rs");
             assert!(p.exists(), format!("Mod.rs does not exist for directory: {}", d));
