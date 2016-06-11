@@ -107,6 +107,8 @@ fn update_modrs(target: &mut PathBuf, mut modstring: String) -> Result<(), io::E
         modstring.push_str(&current_contents);
     }
 
+    println!("Updating: {}", target.display());
+
     let mut new_file = try!(fs::File::create(target));
     try!(new_file.write_all(modstring.as_bytes()));
     Ok(())
