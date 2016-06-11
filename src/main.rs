@@ -51,11 +51,6 @@ my_crate/
           - mod.rs
           - module.rs
 
-We will also automatically add the correct mod exports to the generated mod.rs files AND to lib.rs/main.rs
-whichever exists with a preference for lib.rs if both exist
-
-However if you are inside the src/ directory we will start generation from your current directory in the repo.
-
 If you want to only generate one module you can denote whether it is a folder or file module by the addition or omission
 of a trailing /
 
@@ -65,6 +60,7 @@ cargo mod new/
 Example file:
 cargo mod new
 ")
+
 }
 
 fn main() {
