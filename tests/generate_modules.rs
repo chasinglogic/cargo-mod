@@ -65,7 +65,7 @@ fn verify_generation(s: &mut String) {
 
 #[test]
 fn generate_multiple_modules() {
-    let cmd = Command::new(get_executable_path())
+    Command::new(get_executable_path())
         .arg("multiple/modules/test")
         .current_dir(path_concat!(env::current_dir().unwrap(), "tests", "generator_test"))
         .output()
@@ -76,7 +76,7 @@ fn generate_multiple_modules() {
 
 #[test]
 fn generate_single_file_module() {
-    let cmd = Command::new(get_executable_path())
+    Command::new(get_executable_path())
         .arg("file")
         .current_dir(path_concat!(env::current_dir().unwrap(), "tests", "generator_test"))
         .output()
@@ -87,7 +87,7 @@ fn generate_single_file_module() {
 
 #[test]
 fn generate_single_folder_module() {
-    let cmd = Command::new(get_executable_path())
+    Command::new(get_executable_path())
         .arg("folder/")
         .current_dir(path_concat!(env::current_dir().unwrap(), "tests", "generator_test"))
         .output()
@@ -98,7 +98,7 @@ fn generate_single_folder_module() {
 
 #[test]
 fn generate_private_module() {
-    let cmd = Command::new(get_executable_path())
+    Command::new(get_executable_path())
         .arg("-p")
         .arg("private")
         .current_dir(path_concat!(env::current_dir().unwrap(), "tests", "generator_test"))
@@ -124,7 +124,7 @@ fn generate_private_module() {
 #[test]
 fn generate_module_inside_subdir() {
     // Generate the first folder
-    let cmd = Command::new(get_executable_path())
+    Command::new(get_executable_path())
         .arg("subfolder/")
         .current_dir(path_concat!(env::current_dir().unwrap(), "tests", "generator_test"))
         .output()
@@ -132,7 +132,7 @@ fn generate_module_inside_subdir() {
 
     verify_generation(&mut "subfolder/".to_string());
 
-    let cmd = Command::new(get_executable_path())
+    Command::new(get_executable_path())
         .arg("anotha/one")
         .current_dir(path_concat!(env::current_dir().unwrap(), "tests", "generator_test", "src", "subfolder"))
         .output()
