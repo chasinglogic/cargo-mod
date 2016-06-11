@@ -1,8 +1,7 @@
-use std::fs::{File, remove_dir_all};
+use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::process;
 use std::env;
 
 // All credit to: https://github.com/uutils/coreutils/blob/master/tests/common/macros.rs
