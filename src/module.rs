@@ -2,6 +2,7 @@ use std::path::PathBuf;
 use std::fs;
 use std::io::{Read, Write};
 use std::io;
+use std::str::pattern::StrSearcher;
 
 fn is_file(s: &str) -> bool {
     s.ends_with(".rs")
@@ -80,8 +81,12 @@ fn gen_folder_module(mut target_path: PathBuf) -> Result<(), io::Error> {
 }
 
 fn generate_modstring(name: &str, private: bool) -> String {
+    if name.ends_with(".rs") {
+        name.replace(".rs", "");
+    }
+
     if private {
-        return format!("mod {};\n", &name);
+        return format!("mod {};\n", &name)
     }
 
     format!("pub mod {};\n", &name)
