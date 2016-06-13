@@ -58,25 +58,18 @@ pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
 
 fn gen_file_module(target_path: PathBuf) -> Result<fs::File, io::Error> {
     println!("Creating empty file: {}", target_path.display());
-    fs::File::create(target_path)
+    fs::OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open(target_path)
 }
 
-fn gen_folder_module(mut target_path: PathBuf) -> Result<(), io::Error> {
+fn gen_folder_module(mut target_path: PathBuf) -> Result<fs::File, io::Error> {
     println!("Creating directory: {}", target_path.display());
     try!(fs::create_dir(&target_path));
 
     target_path.push("mod.rs");
-    let mut f = try!(fs::OpenOptions::new()
-                     .read(true)
-                     .write(true)
-                     .create(true)
-                     .append(true)
-                     .open(target_path));
-
-    // TODO: Is this necessary? I don't know if OpenOptions will create the file without being
-    // written to.
-    try!(f.write_all("".as_bytes()));
-    Ok(())
+    gen_file_module(target_path)
 }
 
 fn generate_modstring(name: String, private: bool) -> String {
