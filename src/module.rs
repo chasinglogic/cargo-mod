@@ -2,7 +2,6 @@ use std::path::PathBuf;
 use std::fs;
 use std::io::{Read, Write};
 use std::io;
-use std::str::pattern::StrSearcher;
 
 fn is_file(s: &str) -> bool {
     s.ends_with(".rs")
@@ -34,7 +33,7 @@ pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
                 println!("Unexpected error: {}", err)
             }
 
-            if let Some(err) = update_modrs(&mut working_dir.clone(), generate_modstring(dir, private)).err() {
+            if let Some(err) = update_modrs(&mut working_dir.clone(), generate_modstring(dir.to_string(), private)).err() {
                 println!("Unexpected error: {}", err);
             }
 
@@ -51,7 +50,7 @@ pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
             println!("Unexpected error: {}", err)
         }
 
-        if let Some(err) = update_modrs(&mut working_dir.clone(), generate_modstring(dir, private)).err() {
+        if let Some(err) = update_modrs(&mut working_dir.clone(), generate_modstring(dir.to_string(), private)).err() {
             println!("Unexpected error: {}", err);
         }
     }
@@ -80,16 +79,18 @@ fn gen_folder_module(mut target_path: PathBuf) -> Result<(), io::Error> {
     Ok(())
 }
 
-fn generate_modstring(name: &str, private: bool) -> String {
-    if name.ends_with(".rs") {
-        name.replace(".rs", "");
-    }
+fn generate_modstring(name: String, private: bool) -> String {
+    let mod_name = if name.ends_with(".rs") {
+        name.replace(".rs", "")
+    } else {
+        name.clone()
+    };
 
     if private {
-        return format!("mod {};\n", &name)
+        return format!("mod {};\n", &mod_name)
     }
 
-    format!("pub mod {};\n", &name)
+    format!("pub mod {};\n", &mod_name)
 }
 
 // This function is definitely a feelsbadman.jpg
