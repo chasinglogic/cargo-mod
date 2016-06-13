@@ -51,7 +51,7 @@ pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
         }
 
         if let Some(err) = update_modrs(&mut working_dir.clone(), generate_modstring(dir.to_string(), private)).err() {
-            println!("Unexpected error: {}", err);
+            println!("Unexpected error: {}", err)
         }
     }
 }
