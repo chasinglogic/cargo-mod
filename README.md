@@ -1,5 +1,10 @@
-# cargo-mod ![Build Status](https://travis-ci.org/ChasingLogic/cargo-mod.svg?branch=master)
+# cargo-mod 
 A cargo sub command for generating modules.
+----
+![Build Status](https://travis-ci.org/ChasingLogic/cargo-mod.svg?branch=master)
+[![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-ff69b4.svg)](https://github.com/ChasingLogic/cargo-mod/blob/master/LICENSE)
+[![Crates.io](https://img.shields.io/crates/v/cargo-mod.svg)](https://crates.io/crates/cargo-mod)
+[![Crates.io](https://img.shields.io/crates/d/cargo-mod.svg)](https://crates.io/crates/cargo-mod)
 
 Create a new module or modules in the current cargo project.
 
