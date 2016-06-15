@@ -6,6 +6,7 @@ A cargo sub command for generating modules.
 [![Crates.io](https://img.shields.io/crates/v/cargo-mod.svg)](https://crates.io/crates/cargo-mod)
 [![Crates.io](https://img.shields.io/crates/d/cargo-mod.svg)](https://crates.io/crates/cargo-mod)
 
+`
 Create a new module or modules in the current cargo project.
 
 Usage:
@@ -62,4 +63,4 @@ cargo mod new/
 
 Example file:
 cargo mod new
-
+`
