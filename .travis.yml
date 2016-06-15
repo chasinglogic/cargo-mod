@@ -1,7 +1,4 @@
 language: rust
 
-before_script:
-  - ./setup_tests.sh
-
 script:
   - make
