@@ -16,7 +16,7 @@ cargo install cargo-mod
 ```
 
 ## Why
-When writing Rust I grew very tired of creating modules by hand, it became especially tedious when I want to generate multiple nested modules and I would often forget to add an export to the mod.rs or to my own lib.rs etc etc, being a DevOps'er professionally whenever I see something that's manual, boring, and error-prone I can't help but want to automate it, so cargo-mod was born.
+When writing Rust I grew very tired of creating modules by hand, it became especially tedious when I wanted to generate multiple nested modules and I would often forget to add an export to the mod.rs or to my own lib.rs etc etc, being a DevOps'er professionally whenever I see something that's manual, boring, and error-prone I can't help but want to automate it, so cargo-mod was born.
 
 ## Contributing
 I'm always happy to accept pull requests for any features you would like to see added, a few I personally would like to see added are:
