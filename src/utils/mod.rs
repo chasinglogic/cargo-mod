@@ -7,12 +7,12 @@ pub fn are_in_project() -> bool {
         cwd.push("Cargo.toml");
 
         if cwd.exists() {
-            return true
+            return true;
         }
 
         cwd.pop();
         if !cwd.pop() {
-            return false
+            return false;
         }
     }
 }
