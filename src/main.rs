@@ -47,8 +47,7 @@ my_crate/
     - this/
       - mod.rs
       - is/
-        \
-              - mod.rs
+        - mod.rs
         - a/
           - mod.rs
           - module.rs
