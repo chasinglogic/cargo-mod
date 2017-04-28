@@ -22,7 +22,6 @@ pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
         working_dir.pop();
     }
 
-    // TODO: Some DRY Cleanup here
     for dir in name.split('/') {
         working_dir.push(dir);
         let res = if is_file(dir) {
