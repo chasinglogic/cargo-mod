@@ -18,9 +18,10 @@ Options:
   -h, --help        Print this message
   -p, --private     Make the generated module/s private
 
-Details:
-The path is a path seperated by / (even if on windows for now.) and will generate all folder modules
-in between the final module and beginning module. The starting point being the current working directory.
+Details: The path is a path seperated by / (even if on windows for
+now.) and will generate all folder modules in between the final
+module and beginning module. The starting point being the current
+working directory.
 
 Example:
 If you are in the root of your project and you run
@@ -46,13 +47,14 @@ my_crate/
     - this/
       - mod.rs
       - is/
-        - mod.rs
+        \
+              - mod.rs
         - a/
           - mod.rs
           - module.rs
 
-If you want to only generate one module you can denote whether it is a folder or file module by the addition or omission
-of a trailing /
+If you want to only generate one module you can denote whether it is a
+folder or file module by the addition or omission of a trailing /
 
 Example folder:
 cargo mod new/
