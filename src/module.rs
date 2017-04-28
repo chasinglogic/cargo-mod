@@ -9,7 +9,9 @@ fn is_file(s: &str) -> bool {
 
 pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
     // This makes sure that the name ends with .rs if not a directory
-    if !name.ends_with('/') { name.push_str(".rs") }
+    if !name.ends_with('/') {
+        name.push_str(".rs")
+    }
 
     // Check if we are at project root
     working_dir.push("Cargo.toml");
@@ -22,37 +24,26 @@ pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
 
     // TODO: Some DRY Cleanup here
     for dir in name.split('/') {
-        if is_file(dir) {
-            working_dir.push(dir);
-            if let Some(err) = gen_file_module(working_dir.clone()).err() {
-                if err.kind() == io::ErrorKind::AlreadyExists {
-                    println!("Skipping, file already exists.");
-                    continue
-                }
-
-                println!("Unexpected error: {}", err)
-            }
-
-            if let Some(err) = update_modrs(&mut working_dir.clone(), generate_modstring(dir.to_string(), private)).err() {
-                println!("Unexpected error: {}", err);
-            }
-
-            break;
-        }
-
         working_dir.push(dir);
-        if let Some(err) = gen_folder_module(working_dir.clone()).err() {
+        let res = if is_file(dir) {
+            gen_file_module(working_dir.clone()).err()
+        } else {
+            gen_folder_module(working_dir.clone()).err()
+        };
+
+        if res.is_some() {
+            let err = res.unwrap();
             if err.kind() == io::ErrorKind::AlreadyExists {
                 println!("Skipping, folder already exists.");
-                continue
+                continue;
             }
 
             println!("Unexpected error: {}", err)
         }
 
-        if let Some(err) = update_modrs(&mut working_dir.clone(), generate_modstring(dir.to_string(), private)).err() {
-            println!("Unexpected error: {}", err)
-        }
+        update_modrs(&mut working_dir.clone(),
+                     generate_modstring(dir.to_string(), private)).
+            expect("Unable to update the generated mod.rs");
     }
 }
 
@@ -80,7 +71,7 @@ fn generate_modstring(name: String, private: bool) -> String {
     };
 
     if private {
-        return format!("mod {};\n", &mod_name)
+        return format!("mod {};\n", &mod_name);
     }
 
     format!("pub mod {};\n", &mod_name)
@@ -113,13 +104,13 @@ fn update_modrs(target: &mut PathBuf, mut modstring: String) -> Result<(), io::E
     Ok(())
 }
 
-fn what_to_update(target_path: &mut PathBuf)  {
+fn what_to_update(target_path: &mut PathBuf) {
     let targets = ["mod.rs", "lib.rs", "main.rs"];
     for target in &targets {
         target_path.push(target);
 
         if target_path.exists() {
-            break
+            break;
         }
 
         target_path.pop();
