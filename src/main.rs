@@ -59,6 +59,11 @@ cargo mod new/
 
 Example file:
 cargo mod new
+
+Additionally you can specify a file module by adding .rs to it's name:
+
+Example file:
+cargo mod new.rs
 ";
 
 fn main() {
