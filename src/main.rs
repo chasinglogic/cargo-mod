@@ -79,17 +79,17 @@ fn main() {
     }
 
     let private = matches.opt_present("p");
-    let mut name = if !matches.free.is_empty() {
-        matches.free[1].clone()
-    } else {
+
+    if matches.free.is_empty() {
         println!("{}", USAGE);
         process::exit(1)
-    };
-
-    // Hack to get around how cargo subcommands and getopts works.
-    if name == "mod" {
-        name = matches.free[2].clone()
     }
+
+    let name = if matches.free[1] == "mod" {
+        matches.free[2].clone()
+    } else {
+        matches.free[1].clone()
+    };
 
     if !utils::are_in_project() {
         println!("Please run this command inside a Cargo project. Exiting.");
