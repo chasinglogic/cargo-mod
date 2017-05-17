@@ -92,7 +92,7 @@ fn main() {
     };
 
     if !utils::are_in_project() {
-        println!("Please run this command inside a Cargo project. Exiting.");
+        println!("This command must be run inside a cargo project. Exiting.");
         process::exit(1);
     }
 
