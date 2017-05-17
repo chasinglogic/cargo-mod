@@ -53,11 +53,13 @@ fn gen_folder_module(mut target_path: PathBuf) -> Result<fs::File, io::Error> {
     gen_file_module(target_path)
 }
 
-fn generate_modstring(name: String, private: bool) -> String {
+fn generate_modstring(name: &str, private: bool) -> String {
+    let s;
     let mod_name = if name.ends_with(".rs") {
-        name.replace(".rs", "")
+        s = name.replace(".rs", "");
+        &s
     } else {
-        name.clone()
+        name
     };
 
     if private {
