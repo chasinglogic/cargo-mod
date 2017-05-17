@@ -96,12 +96,8 @@ fn main() {
         matches.free[1].clone()
     };
 
-    if !utils::are_in_project() {
-        println!("This command must be run inside a cargo project. Exiting.");
-        process::exit(1);
+    match utils::get_project_root() {
+        Some(mut root) => module::gen_module(name, private, &mut root),
+        None => println!("This command must be run inside a cargo project."),
     }
-
-    let mut current_dir = env::current_dir()
-        .expect("Unexpected Error: Cannot get current working directory.");
-    module::gen_module(name, private, &mut current_dir)
 }
