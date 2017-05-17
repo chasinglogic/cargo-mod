@@ -9,7 +9,7 @@ fn is_file(s: &str) -> bool {
 
 pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
     // This makes sure that the name ends with .rs if not a directory
-    if !name.ends_with('/') {
+    if !name.ends_with("/") && !name.ends_with(".rs") {
         name.push_str(".rs")
     }
 
