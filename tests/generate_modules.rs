@@ -38,7 +38,7 @@ fn get_executable_path() -> PathBuf {
     cwd.pop();
     cwd.push("debug");
     cwd.push("cargo-mod");
-    return cwd
+    cwd
 }
 
 fn verify_generation(s: &mut String) {
@@ -47,9 +47,9 @@ fn verify_generation(s: &mut String) {
     p.push("generator_test");
     p.push("src");
 
-    if !s.ends_with("/") { s.push_str(".rs") }
+    if !s.ends_with('/') { s.push_str(".rs") }
 
-    for d in s.split("/") {
+    for d in s.split('/') {
         p.push(d);
         assert!(p.exists(), format!("Directory/File does not exist. {}", d));
 

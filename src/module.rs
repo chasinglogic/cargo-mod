@@ -7,27 +7,18 @@ fn is_file(s: &str) -> bool {
     s.ends_with(".rs")
 }
 
-pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
+pub fn gen_module(mut name: String, private: bool, project_root: &mut PathBuf) {
     // This makes sure that the name ends with .rs if not a directory
-    if !name.ends_with("/") && !name.ends_with(".rs") {
+    if !name.ends_with('/') && !name.ends_with(".rs") {
         name.push_str(".rs")
     }
 
-    // Check if we are at project root
-    working_dir.push("Cargo.toml");
-    if working_dir.exists() {
-        working_dir.pop();
-        working_dir.push("src");
-    } else {
-        working_dir.pop();
-    }
-
     for dir in name.split('/') {
-        working_dir.push(dir);
+        project_root.push(dir);
         let res = if is_file(dir) {
-            gen_file_module(working_dir.clone()).err()
+            gen_file_module(project_root.clone()).err()
         } else {
-            gen_folder_module(working_dir.clone()).err()
+            gen_folder_module(project_root.clone()).err()
         };
 
         if res.is_some() {
@@ -40,8 +31,8 @@ pub fn gen_module(mut name: String, private: bool, working_dir: &mut PathBuf) {
             println!("Unexpected error: {}", err)
         }
 
-        update_modrs(&mut working_dir.clone(),
-                     generate_modstring(dir.to_string(), private)).
+        update_modrs(&mut project_root.clone(),
+                     generate_modstring(&dir.to_string(), private)).
             expect("Unable to update the generated mod.rs");
     }
 }
