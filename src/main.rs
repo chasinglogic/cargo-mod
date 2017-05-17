@@ -6,8 +6,7 @@ extern crate getopts;
 use getopts::Options;
 use std::{env, process};
 
-fn print_usage() {
-    println!("
+const USAGE: &str = "
 Create a new module or modules in the current cargo project.
 
 Usage:
@@ -60,9 +59,7 @@ cargo mod new/
 
 Example file:
 cargo mod new
-")
-
-}
+";
 
 fn main() {
     let mut opts = Options::new();
@@ -77,7 +74,7 @@ fn main() {
     };
 
     if matches.opt_present("h") {
-        print_usage();
+        println!("{}", USAGE);
         process::exit(0);
     }
 
@@ -85,7 +82,7 @@ fn main() {
     let mut name = if !matches.free.is_empty() {
         matches.free[1].clone()
     } else {
-        print_usage();
+        println!("{}", USAGE);
         process::exit(1)
     };
 
